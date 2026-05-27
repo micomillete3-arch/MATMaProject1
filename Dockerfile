@@ -11,7 +11,6 @@ WORKDIR /var/www
 COPY . .
 
 ENV APP_ENV=production
-ENV APP_URL=http://localhost
 ENV LOG_CHANNEL=stderr
 
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
@@ -22,4 +21,4 @@ RUN chmod -R 775 storage bootstrap/cache
 
 EXPOSE 10000
 
-CMD sh -c "php artisan optimize:clear && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"
+CMD ["sh", "bin/render-start.sh"]
