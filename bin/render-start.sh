@@ -25,6 +25,7 @@ php artisan optimize:clear
 
 if [ -z "$missing_vars" ]; then
     php artisan migrate --force || echo "Warning: migrations failed; starting web server so diagnostics are reachable." >&2
+    php artisan db:seed --class=AccessControlSeeder --force || echo "Warning: default account seeding failed." >&2
 else
     echo "Warning: skipping migrations because required database/app variables are missing." >&2
 fi

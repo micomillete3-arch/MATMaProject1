@@ -33,15 +33,11 @@ class AccessControlSeeder extends Seeder
         ];
 
         foreach ($admins as $admin) {
-            UserAccounts::updateOrCreate(
-                ['email' => $admin['email']],
-                [
-                    'username' => $admin['username'],
-                    'password' => Hash::make($admin['password']),
-                    'role' => UserAccounts::ROLE_ADMIN,
-                    'is_active' => 1,
-                    'must_change_password' => true,
-                ]
+            $this->seedAccount(
+                username: $admin['username'],
+                email: $admin['email'],
+                password: $admin['password'],
+                role: UserAccounts::ROLE_ADMIN
             );
         }
 
@@ -64,15 +60,11 @@ class AccessControlSeeder extends Seeder
         ];
 
         foreach ($teachers as $teacher) {
-            UserAccounts::updateOrCreate(
-                ['email' => $teacher['email']],
-                [
-                    'username' => $teacher['username'],
-                    'password' => Hash::make($teacher['password']),
-                    'role' => UserAccounts::ROLE_TEACHER,
-                    'is_active' => 1,
-                    'must_change_password' => true,
-                ]
+            $this->seedAccount(
+                username: $teacher['username'],
+                email: $teacher['email'],
+                password: $teacher['password'],
+                role: UserAccounts::ROLE_TEACHER
             );
         }
 
@@ -120,15 +112,11 @@ class AccessControlSeeder extends Seeder
         ];
 
         foreach ($students as $studentData) {
-            $account = UserAccounts::updateOrCreate(
-                ['email' => $studentData['email']],
-                [
-                    'username' => $studentData['username'],
-                    'password' => Hash::make('Student12345'),
-                    'role' => UserAccounts::ROLE_STUDENT,
-                    'is_active' => 1,
-                    'must_change_password' => true,
-                ]
+            $account = $this->seedAccount(
+                username: $studentData['username'],
+                email: $studentData['email'],
+                password: 'Student12345',
+                role: UserAccounts::ROLE_STUDENT
             );
 
             Student::updateOrCreate(
@@ -141,5 +129,23 @@ class AccessControlSeeder extends Seeder
                 ]
             );
         }
+    }
+
+    private function seedAccount(string $username, string $email, string $password, string $role): UserAccounts
+    {
+        $account = UserAccounts::firstOrNew(['email' => $email]);
+
+        $account->username = $username;
+        $account->role = $role;
+        $account->is_active = 1;
+
+        if (! $account->exists) {
+            $account->password = Hash::make($password);
+            $account->must_change_password = true;
+        }
+
+        $account->save();
+
+        return $account;
     }
 }
