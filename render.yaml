@@ -31,7 +31,7 @@ services:
       - key: DB_PASSWORD
         sync: false
       - key: SESSION_DRIVER
-        value: database
+        value: file
       - key: CACHE_STORE
         value: file
       - key: QUEUE_CONNECTION
