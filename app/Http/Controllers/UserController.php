@@ -14,8 +14,8 @@ class UserController extends Controller
 {
     public function login(Request $request): RedirectResponse
     {
-        $userName = $request->input('username');
-        $passwordInput = $request->input('password');
+        $userName = trim((string) $request->input('username'));
+        $passwordInput = (string) $request->input('password');
 
         if (! $request->filled('username') && ! $request->filled('password')) {
             return redirect()->route('student.login');
@@ -74,7 +74,12 @@ class UserController extends Controller
 
     public function findActiveUserByUsername(string $username): ?UserAccounts
     {
-        return UserAccounts::where('username', $username)
+        $login = trim($username);
+
+        return UserAccounts::where(function ($query) use ($login) {
+                $query->where('username', $login)
+                    ->orWhere('email', $login);
+            })
             ->where('is_active', 1)
             ->first();
     }

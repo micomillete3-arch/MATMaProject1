@@ -31,6 +31,30 @@ return Application::configure(basePath: dirname(__DIR__))
                     'php_version' => PHP_VERSION,
                 ]);
             });
+
+            Illuminate\Support\Facades\Route::get('/account-check', function () {
+                if (! Illuminate\Support\Facades\Schema::hasTable('user_accounts')) {
+                    return response()->json([
+                        'user_accounts_table_exists' => false,
+                    ]);
+                }
+
+                $admin = App\Models\UserAccounts::where('username', 'admin01')->first();
+                $passwordInfo = $admin ? password_get_info($admin->password) : null;
+
+                return response()->json([
+                    'user_accounts_table_exists' => true,
+                    'user_accounts_count' => App\Models\UserAccounts::count(),
+                    'admin01_exists' => (bool) $admin,
+                    'admin01_active' => $admin?->is_active,
+                    'admin01_role' => $admin?->role,
+                    'admin01_must_change_password' => $admin?->must_change_password,
+                    'admin01_hash_algo' => $passwordInfo['algoName'] ?? null,
+                    'admin01_hash_length' => $admin ? strlen($admin->password) : null,
+                    'admin01_default_password_matches' => $admin ? Illuminate\Support\Facades\Hash::check('Admin12345', $admin->password) : false,
+                    'hash_driver' => config('hashing.driver'),
+                ]);
+            });
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
