@@ -133,28 +133,39 @@ class AccessControlSeeder extends Seeder
 
     private function seedAccount(string $username, string $email, string $password, string $role): UserAccounts
     {
-        $account = UserAccounts::firstOrNew(['email' => $email]);
+        $account = UserAccounts::where('email', $email)
+            ->orWhere('username', $username)
+            ->first() ?? new UserAccounts();
 
         $account->username = $username;
+        $account->email = $email;
         $account->role = $role;
         $account->is_active = 1;
 
-        if (! $account->exists || $this->passwordHashIsInvalid($account->password)) {
+        if ($this->shouldResetDefaultPassword($account, $password)) {
             $account->password = Hash::make($password);
-            $account->must_change_password = true;
         }
 
+        $account->must_change_password = false;
         $account->save();
 
         return $account;
     }
 
-    private function passwordHashIsInvalid(?string $passwordHash): bool
+    private function shouldResetDefaultPassword(UserAccounts $account, string $password): bool
     {
-        if (! $passwordHash) {
+        if (! $account->exists || ! $account->password) {
             return true;
         }
 
-        return password_get_info($passwordHash)['algo'] === 0;
+        if (password_get_info($account->password)['algo'] === 0) {
+            return true;
+        }
+
+        if (! Hash::check($password, $account->password)) {
+            return true;
+        }
+
+        return Hash::needsRehash($account->password);
     }
 }
