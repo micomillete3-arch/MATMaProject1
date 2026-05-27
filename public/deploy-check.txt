@@ -1,0 +1,1 @@
+MATMA Render deploy check: static files are being served.
