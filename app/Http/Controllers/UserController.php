@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
+use Throwable;
 
 class UserController extends Controller
 {
@@ -29,7 +30,14 @@ class UserController extends Controller
 
         $user = $this->findActiveUserByUsername($userName);
 
-        if (! $user || ! Hash::check($passwordInput, $user->password)) {
+        try {
+            $passwordMatches = $user && Hash::check($passwordInput, $user->password);
+        } catch (Throwable $exception) {
+            report($exception);
+            $passwordMatches = false;
+        }
+
+        if (! $passwordMatches) {
             return redirect()
                 ->route('student.login')
                 ->with('message', 'Wrong credentials. Please try again.')

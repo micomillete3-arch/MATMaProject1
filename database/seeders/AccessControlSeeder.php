@@ -139,7 +139,7 @@ class AccessControlSeeder extends Seeder
         $account->role = $role;
         $account->is_active = 1;
 
-        if (! $account->exists) {
+        if (! $account->exists || $this->passwordHashIsInvalid($account->password)) {
             $account->password = Hash::make($password);
             $account->must_change_password = true;
         }
@@ -147,5 +147,14 @@ class AccessControlSeeder extends Seeder
         $account->save();
 
         return $account;
+    }
+
+    private function passwordHashIsInvalid(?string $passwordHash): bool
+    {
+        if (! $passwordHash) {
+            return true;
+        }
+
+        return password_get_info($passwordHash)['algo'] === 0;
     }
 }
