@@ -4,6 +4,11 @@ set -e
 export APP_ENV=production
 export APP_DEBUG=false
 export LOG_CHANNEL=stderr
+export HASH_DRIVER=argon2id
+export HASH_VERIFY=false
+export ARGON_MEMORY=1024
+export ARGON_THREADS=2
+export ARGON_TIME=2
 export SESSION_DRIVER=file
 export CACHE_STORE=file
 export QUEUE_CONNECTION=sync

@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'db_database_set' => filled(config('database.connections.mysql.database')),
                     'db_username_set' => filled(config('database.connections.mysql.username')),
                     'db_password_set' => filled(config('database.connections.mysql.password')),
+                    'hash_driver' => config('hashing.driver'),
                     'session_driver' => config('session.driver'),
                     'cache_store' => config('cache.default'),
                     'queue_connection' => config('queue.default'),
