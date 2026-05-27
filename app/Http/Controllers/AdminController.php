@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -17,17 +18,25 @@ class AdminController extends Controller
     {
         /** @var UserAccounts $user */
         $user = auth()->user();
+        $hasStudentsTable = Schema::hasTable('students');
+        $studentRelations = ['userAccount'];
+
+        if (Schema::hasTable('degrees')) {
+            $studentRelations[] = 'degree';
+        }
 
         $stats = [
-            'students' => Student::count(),
+            'students' => $hasStudentsTable ? Student::count() : 0,
             'teachers' => UserAccounts::where('role', UserAccounts::ROLE_TEACHER)->count(),
             'admins' => UserAccounts::where('role', UserAccounts::ROLE_ADMIN)->count(),
         ];
 
-        $latestStudents = Student::with(['degree', 'userAccount'])
-            ->latest()
-            ->take(5)
-            ->get();
+        $latestStudents = $hasStudentsTable
+            ? Student::with($studentRelations)
+                ->latest()
+                ->take(5)
+                ->get()
+            : collect();
 
         $teachers = UserAccounts::where('role', UserAccounts::ROLE_TEACHER)
             ->latest()
