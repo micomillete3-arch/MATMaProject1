@@ -10,8 +10,14 @@ services:
         value: production
       - key: APP_DEBUG
         value: false
+      - key: APP_URL
+        value: https://matmaproject.onrender.com
       - key: APP_KEY
         sync: false
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: debug
       - key: DB_CONNECTION
         value: mysql
       - key: DB_HOST
@@ -27,6 +33,10 @@ services:
       - key: SESSION_DRIVER
         value: database
       - key: CACHE_STORE
-        value: database
+        value: file
       - key: QUEUE_CONNECTION
-        value: database
+        value: sync
+      - key: FILESYSTEM_DISK
+        value: local
+      - key: BROADCAST_CONNECTION
+        value: log

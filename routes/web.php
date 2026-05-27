@@ -1,16 +1,29 @@
 <?php
 
+use App\Http\Middleware\ForcePasswordChangeMiddleware;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DegreeController;
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\StudentAuthController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 Route::get('/ping', function () {
-    return 'Laravel is running';
-});
+    return 'PING OK';
+})->withoutMiddleware([
+    EncryptCookies::class,
+    AddQueuedCookiesToResponse::class,
+    StartSession::class,
+    ShareErrorsFromSession::class,
+    VerifyCsrfToken::class,
+    ForcePasswordChangeMiddleware::class,
+]);
 
 Route::get('/debug-log', function () {
     $path = storage_path('logs/laravel.log');
@@ -26,7 +39,7 @@ Route::get('/debug-log', function () {
 });
 // Homepage redirect
 Route::get('/', function () {
-    return redirect()->route('student.login');
+    return redirect('/login');
 });
 
 Route::get('/maintenance', [PagesController::class, 'maintenance'])->name('maintenance.page');
